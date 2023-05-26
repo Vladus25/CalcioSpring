@@ -1,0 +1,275 @@
+<div class="container">
+  <h2>Diverse ricerce per Calcio</h2>
+
+  <div class="mb-3">
+    <label for="selectOption" class="form-label">Seleziona un'opzione di Ricerca</label>
+    <select class="form-select" id="selectOption" [(ngModel)]="selectedOption" name="selectOption">
+      <option *ngFor="let block of blocks" [value]="block.value">{{ block.label }}</option>
+    </select>
+  </div>
+
+
+  <div [ngSwitch]="selectedOption">
+
+    <!-- Visualizzare l’elenco delle squadre -->
+    <div *ngSwitchCase="'1'">
+      <div class="container">
+        <h2>Squadre</h2>
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th>Squadra</th>
+              <th>Citta</th>
+              <th>Allenatore</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let squadra of datiSquadre">
+              <td>{{ squadra.nome }}</td>
+              <td>{{ squadra.citta }}</td>
+              <td>{{ squadra.allenatore }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Visualizzare tutti i giocatori -->
+    <div *ngSwitchCase="'2'">
+      <div class="container">
+        <h2>Giocatori</h2>
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th>Giocatore</th>
+              <th>Data di nascita</th>
+              <th>Ruolo</th>
+              <th>Squadra</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let giocatore of datiGiocatori">
+              <td>{{ giocatore.nome }} {{ giocatore.cognome }}</td>
+              <td>{{ giocatore.dataN }}</td>
+              <td>{{ giocatore.ruolo }}</td>
+              <td>{{ giocatore.idSquadra.nome }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Visualizzare tutti i giocatori di una data città -->
+    <div *ngSwitchCase="'3'">
+      <form (ngSubmit)="ricercaGiocatorePerCitta(cittaGiocatore)">
+
+        <div class="mb-3">
+          <label for="id" class="form-label">Citta del giocatore:</label>
+          <select class="form-control" [(ngModel)]="cittaGiocatore" name="cittaGiocatore">
+            <option *ngFor="let squadra of datiSquadre" [value]="squadra.citta">{{ squadra.citta}}</option>
+          </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Cerca</button>
+
+        <div class="container" *ngIf="datiGiocatorePerCitta && datiGiocatorePerCitta.length > 0">
+          <h2>Giocatori</h2>
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>Giocatore</th>
+                <th>Data di nascita</th>
+                <th>Ruolo</th>
+                <th>Squadra</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let giocatore of datiGiocatorePerCitta">
+                <td>{{ giocatore.nome }} {{ giocatore.cognome }}</td>
+                <td>{{ giocatore.dataN }}</td>
+                <td>{{ giocatore.ruolo }}</td>
+                <td>{{ giocatore.idSquadra.nome }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </form>
+    </div>
+
+    <!-- Dato un allenatore, visualizzare la squadra che allena e i giocatori che ne fanno parte -->
+    <div *ngSwitchCase="'4'">
+      <form (ngSubmit)="ricercaSquadraGiocatoriPerAllenatore(allenatore)">
+
+        <div class="mb-3">
+          <label for="id" class="form-label">Scegli alenatore:</label>
+          <select class="form-control" [(ngModel)]="allenatore" name="allenatore">
+            <option *ngFor="let squadra of datiSquadre" [value]="squadra.allenatore">{{ squadra.allenatore}}</option>
+          </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Cerca</button>
+
+        <div *ngIf="datiSquadraGiocatoriPerAllenatore && datiSquadraGiocatoriPerAllenatore.length > 0">
+          <h2>Risultato:</h2>
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>Giocatore</th>
+                <th>Squadra</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let d of datiSquadraGiocatoriPerAllenatore">
+                <td>{{ d[0] }} {{ d[1]  }}</td>
+                <td>{{ d[2] }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </form>
+    </div>
+
+    <!-- Visualizzare, in una certa data, le partite che sono state giocate specificandone: girone, numero, giornata e squadre coinvolte -->
+    <div *ngSwitchCase="'5'">
+      <form (ngSubmit)="ricercaPartitaPerData(dataPartita)">
+
+        <div class="my-4">
+          <div class="form-group row">
+            <label class="col-sm-2 col-form-label">Data Partita</label>
+            <div class="col-sm-4">
+              <input type="date" class="form-control" [(ngModel)]="dataPartita" name="dataPartita">
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary">Cerca</button>
+        </div>
+
+        <div *ngIf="datiPartitaPerData && datiPartitaPerData.length > 0">
+          <h2>Partite</h2>
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>Data della Partita</th>
+                <th>Girone</th>
+                <th>Giornata</th>
+                <th>Squadre</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let d of datiPartitaPerData">
+                <td>{{ d.dataPartita }}</td>
+                <td>{{ d.girone }}</td>
+                <td>{{ d.giornata }}</td>
+                <td>{{ d.squadraNome }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </form>
+    </div>
+
+    <!-- Dato un ruolo, visualizzare tutti i giocatori che hanno quel ruolo in comune -->
+    <div *ngSwitchCase="'6'">
+      <form (ngSubmit)="ricercaRuoloGiocatore(ruoloGiocatore)">
+
+        <div class="mb-3">
+          <label for="id" class="form-label">Scegli ruolo:</label>
+          <select class="form-control" [(ngModel)]="ruoloGiocatore" name="ruoloGiocatore">
+            <option *ngFor="let giocatore of datiGiocatori | ruoliUnici " [value]="giocatore">{{ giocatore}}</option>
+          </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Cerca</button>
+
+        <div *ngIf="datiGiocatoriRuolo && datiGiocatoriRuolo.length > 0">
+          <h2>Giocatori</h2>
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>Giocatore</th>
+                <th>Data di nascita</th>
+                <th>Ruolo</th>
+                <th>Squadra</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let d of datiGiocatoriRuolo">
+              <td>{{ d.nome }} {{ d.cognome }}</td>
+              <td>{{ d.dataN }}</td>
+              <td>{{ d.ruolo }}</td>
+              <td>{{ d.idSquadra.nome }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </form>
+    </div>
+
+    <!-- Visualizzare tutti i calciatori che hanno più di 24 anni -->
+    <div *ngSwitchCase="'7'">
+      <form (ngSubmit)="ricercaGiocatorePerEta(etaGiocatore)">
+
+        <div class="my-4">
+          <div class="form-group row">
+            <label class="col-sm-2 col-form-label">Eta del Giocatore</label>
+            <div class="col-sm-4">
+              <input type="number" class="form-control" [(ngModel)]="etaGiocatore" name="etaGiocatore">
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary">Cerca</button>
+        </div>
+
+        <div *ngIf="datiGiocatoriPerEta && datiGiocatoriPerEta.length > 0">
+          <h2>Giocatori</h2>
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>Giocatore</th>
+                <th>Ruolo</th>
+                <th>Eta</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let d of datiGiocatoriPerEta">
+                <td>{{ d.nome }} {{ d.cognome }}</td>
+                <td>{{ d.ruolo }}</td>
+                <td>{{ calcolaEta(d.dataN) }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </form>
+    </div>
+
+    <!-- Visualizzare tutte le squadre che hanno giocato in casa in un determinato girone -->
+    <div *ngSwitchCase="'8'">
+      <form (ngSubmit)="ricercaSquadrePerGirone(gironeSquadra)">
+
+        <div class="my-4">
+          <div class="form-group row">
+            <label class="col-sm-2 col-form-label">Girone</label>
+            <div class="col-sm-4">
+              <input type="number" class="form-control" [(ngModel)]="gironeSquadra" name="gironeSquadra">
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary">Cerca</button>
+        </div>
+
+        <div *ngIf="datiSquadrePerGirone && datiSquadrePerGirone.length > 0">
+          <h2>Squadre</h2>
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>Squadra</th>
+                <th>Allenatore</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let d of datiSquadrePerGirone">
+                <td>{{ d[1] }}</td>
+                <td>{{ d[2] }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
